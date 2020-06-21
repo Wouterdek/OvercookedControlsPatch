@@ -1,0 +1,27 @@
+NegVal.LStickY=W # Forwards
+NegVal.LStickX=A # Left
+PosVal.LStickY=S # Backwards
+PosVal.LStickX=D # Right
+Button.LB=F # Pickup stuff
+Button.LB=Return # Confirm menu
+Button.LTrigger=R # Cut stuff
+Button.LTrigger=Escape # Leave menu
+Button.DPadRight=LeftShift # Sprint
+Button.DPadLeft=R
+
+NegVal.RStickY=UpArrow # Forward
+NegVal.RStickX=LeftArrow # Left
+PosVal.RStickY=DownArrow # Backwards
+PosVal.RStickX=RightArrow # Right
+Button.RB=P # Pickup stuff
+Button.RTrigger=O # Cut stuff
+Button.B=I # Sprint
+Button.X=O
+
+Button.DPadDown=Space
+Button.DPadRight=Escape
+Button.DPadUp=T
+Button.Y=Period
+Button.A=Slash
+Button.Back=Tab
+Button.Start=PadEnter

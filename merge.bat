@@ -1,0 +1,1 @@
+ILRepack.exe /ndebug /out:OvercookedControlsPatcher_Merged.exe OvercookedControlsPatcher\bin\Debug\OvercookedControlsPatcher.exe OvercookedControlsPatcher\bin\Debug\Mono.Cecil.dll OvercookedControlsPatcher\bin\Debug\Mono.Cecil.Mdb.dll OvercookedControlsPatcher\bin\Debug\Mono.Cecil.Pdb.dll OvercookedControlsPatcher\bin\Debug\Mono.Cecil.Rocks.dll
