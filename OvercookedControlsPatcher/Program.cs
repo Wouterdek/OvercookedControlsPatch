@@ -36,6 +36,8 @@ namespace OvercookedControlsPatcher
 
             WriteResourceToDisk(installDir, "OvercookedControlsPatcher.default_controls.input_combined.txt", Path.Combine(installDir, "input_combined.txt"));
             WriteResourceToDisk(installDir, "OvercookedControlsPatcher.default_controls.input_split.txt", Path.Combine(installDir, "input_split.txt"));
+            WriteResourceToDisk(installDir, "OvercookedControlsPatcher.default_controls.input_keyboard_1.txt", Path.Combine(installDir, "input_keyboard_1_DISABLED.txt"));
+            WriteResourceToDisk(installDir, "OvercookedControlsPatcher.default_controls.input_keyboard_2.txt", Path.Combine(installDir, "input_keyboard_2_DISABLED.txt"));
 
             Console.WriteLine("Patch complete :)");
         }
@@ -70,6 +72,17 @@ namespace OvercookedControlsPatcher
 
             var asmTarget = AssemblyDefinition.ReadAssembly(file, new ReaderParameters() { ReadWrite = true });
 
+            foreach (var patchField in patchType.Fields)
+            {
+                var addFieldMeta = AddField.Read(patchField);
+
+                if (addFieldMeta != null)
+                {
+                    var targetType = asmTarget.MainModule.GetType(addFieldMeta.targetType);
+                    PatchTools.AddField(targetType, patchField);
+                }
+            }
+
             foreach (var patchMethod in patchType.Methods)
             {
                 var addMethodMeta = AddMethod.Read(patchMethod);
@@ -78,15 +91,19 @@ namespace OvercookedControlsPatcher
                 if (addMethodMeta != null)
                 {
                     var targetType = asmTarget.MainModule.GetType(addMethodMeta.targetType);
-                    PatchTools.CopyMethod(targetType, patchMethod);
+                    if (!targetType.Methods.Any(f =>
+                        f.Name == patchMethod.Name && f.Parameters.Count == patchMethod.Parameters.Count))
+                    {
+                        PatchTools.CopyMethod(targetType, patchMethod);
+                    }
                 }
                 else if (replaceMethodMeta != null)
                 {
                     var targetType = asmTarget.MainModule.GetType(replaceMethodMeta.targetType);
 
                     // Not exactly right, but good enough for now.
-                    var targetMethod = targetType.Methods.First(m =>
-                        m.Name == patchMethod.Name && patchMethod.Parameters.Count == m.Parameters.Count);
+                    MethodDefinition targetMethod = targetType.Methods.First(m =>
+                            m.Name == patchMethod.Name && patchMethod.Parameters.Count == m.Parameters.Count);
 
                     PatchTools.ReplaceMethod(targetMethod, patchMethod);
                 }

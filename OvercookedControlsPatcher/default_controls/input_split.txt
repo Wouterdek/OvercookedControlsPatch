@@ -13,10 +13,10 @@ NegVal.RStickY=UpArrow # Forward
 NegVal.RStickX=LeftArrow # Left
 PosVal.RStickY=DownArrow # Backwards
 PosVal.RStickX=RightArrow # Right
-Button.RB=P # Pickup stuff
-Button.RTrigger=O # Cut stuff
-Button.B=I # Sprint
-Button.X=O
+Button.RB=Home # Pickup stuff
+Button.RTrigger=End # Cut stuff
+Button.B=Delete # Sprint
+Button.X=Insert
 
 Button.DPadDown=Space
 Button.DPadRight=Escape

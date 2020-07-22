@@ -1,0 +1,16 @@
+NegVal.LStickY=O # Forwards
+NegVal.LStickX=K # Left
+PosVal.LStickY=L # Backwards
+PosVal.LStickX=M # Right
+NegVal.LStickY=O
+NegVal.LStickX=K
+PosVal.LStickY=L
+PosVal.LStickX=M
+Button.A=U # Pickup stuff
+Button.X=J # Cut stuff
+Button.B=RightShift # Sprint
+Button.B=F1 # Menu
+Button.Y=F2 # Input menu
+Button.LB=LeftShift # Switch Cooks
+Button.RB=RightShift # Switch Cooks
+Button.Start=PadEnter

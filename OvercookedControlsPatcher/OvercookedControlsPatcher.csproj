@@ -35,7 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp-mod">
+    <Reference Include="Assembly-CSharp-mod, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Tools\Epic Games\Overcooked\Overcooked_Data\Managed\Assembly-CSharp-mod.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil, Version=0.11.2.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
@@ -75,6 +76,10 @@
   <ItemGroup>
     <EmbeddedResource Include="default_controls\input_combined.txt" />
     <EmbeddedResource Include="default_controls\input_split.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="default_controls\input_keyboard_1.txt" />
+    <Content Include="default_controls\input_keyboard_2.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

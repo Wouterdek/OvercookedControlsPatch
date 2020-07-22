@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using InControl;
 
 namespace OvercookedControlsPatcher
@@ -82,6 +83,53 @@ namespace OvercookedControlsPatcher
                 return;
             }
             StandardActionSet.ModifiyForSplitKeyboard(actionSet);
+        }
+
+        [AddField(nameof(PCPadInputProvider))]
+        public static bool keyboardInitialized = false;
+
+        [AddMethod(nameof(PCPadInputProvider))]
+        public static string[] GetControlFiles()
+        {
+            List<string> files = new List<string>();
+            for (int i = 1; i < 6; ++i) //Can't do Directory.GetFiles because of exception handler issues
+            {
+                var path = "input_keyboard_" + i + ".txt";
+                if (File.Exists(path))
+                {
+                    files.Add(path);
+                }
+            }
+
+            return files.ToArray();
+        }
+
+        [ReplaceMethod(nameof(PCPadInputProvider))]
+        public static void UpdateKeyboardButtons()
+        {
+            if (!keyboardInitialized)
+            {
+                var controlFiles = GetControlFiles();
+                if (controlFiles != null)
+                {
+                    foreach (var file in controlFiles)
+                    {
+                        global::PCPadInputProvider.m_allDevices.Add(CreateKeyboardForControlFile(file));
+                    }
+
+                    keyboardInitialized = true;
+                }
+            }
+            global::PCPadInputProvider.UpdateKeyboardButtons();
+        }
+
+        [AddMethod(nameof(StandardActionSet))]
+        public static StandardActionSet CreateKeyboardForControlFile(string filename)
+        {
+            StandardActionSet actionSet = new StandardActionSet();
+            actionSet.ResetActions();
+            LoadControlsFromFile(actionSet, filename);
+            return actionSet;
         }
     }
 }

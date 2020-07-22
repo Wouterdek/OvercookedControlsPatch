@@ -49,4 +49,27 @@ namespace OvercookedControlsPatcher
             return val;
         }
     }
+
+    [AttributeUsage(System.AttributeTargets.Field)]
+    public class AddField : System.Attribute
+    {
+        public string targetType;
+
+        public AddField(string targetType)
+        {
+            this.targetType = targetType;
+        }
+
+        public static AddField Read(FieldDefinition field)
+        {
+            var attr = field.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == nameof(AddField));
+            if (attr == null)
+            {
+                return null;
+            }
+            var targetType = (string)attr.ConstructorArguments[0].Value;
+            AddField val = new AddField(targetType);
+            return val;
+        }
+    }
 }

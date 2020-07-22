@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using System.Linq;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace OvercookedControlsPatcher
@@ -67,7 +68,17 @@ namespace OvercookedControlsPatcher
                 else if (operand is MethodDefinition)
                 {
                     MethodDefinition dmethod = operand as MethodDefinition;
-                    MethodDefinition newMethod = CopyMethod(copyToTypedef, dmethod);
+                    MethodDefinition newMethod = copyToTypedef.Methods.FirstOrDefault(f =>
+                        f.Name == dmethod.Name && f.Parameters.Count == dmethod.Parameters.Count);
+                    if (newMethod == null)
+                    {
+                        var addMethodMeta = OvercookedControlsPatcher.AddMethod.Read(dmethod);
+                        if (addMethodMeta != null)
+                        {
+                            var targetType = targetMethod.Module.GetType(addMethodMeta.targetType);
+                            newMethod = CopyMethod(targetType, dmethod);
+                        }
+                    }
                     col.Add(Instruction.Create(i.OpCode, newMethod));
                 }
 
@@ -75,7 +86,17 @@ namespace OvercookedControlsPatcher
                 else if (operand is FieldReference)
                 {
                     FieldReference fref = operand as FieldReference;
-                    FieldReference newf = targetModule.ImportReference(fref);
+                    FieldReference newf;
+                    if (fref.DeclaringType == sourceMethod.DeclaringType)
+                    {
+                        var addFieldMeta = OvercookedControlsPatcher.AddField.Read(fref.Resolve());
+                        var targetType = targetMethod.Module.GetType(addFieldMeta.targetType);
+                        newf = targetType.Fields.First(f => f.Name == fref.Name);
+                    }
+                    else
+                    {
+                        newf = targetModule.ImportReference(fref);
+                    }
                     col.Add(Instruction.Create(i.OpCode, newf));
                 }
                 else if (operand is TypeReference)
@@ -108,7 +129,10 @@ namespace OvercookedControlsPatcher
             foreach (ExceptionHandler eh in oldBody.ExceptionHandlers)
             {
                 ExceptionHandler neh = new ExceptionHandler(eh.HandlerType);
-                neh.CatchType = targetModule.ImportReference(eh.CatchType);
+                if (eh.CatchType != null)
+                {
+                    neh.CatchType = targetModule.ImportReference(eh.CatchType);
+                }
 
                 // we need to setup neh.Start and End; these are instructions; we need to locate it in the source by index
                 if (eh.TryStart != null)
@@ -222,7 +246,17 @@ namespace OvercookedControlsPatcher
                     else if (operand is MethodDefinition)
                     {
                         MethodDefinition dmethod = operand as MethodDefinition;
-                        MethodDefinition newMethod = CopyMethod(targetMethod.DeclaringType, dmethod); //TODO: maybe not
+                        MethodDefinition newMethod = targetMethod.DeclaringType.Methods.FirstOrDefault(f =>
+                            f.Name == dmethod.Name && f.Parameters.Count == dmethod.Parameters.Count);
+                        if (newMethod == null)
+                        {
+                            var addMethodMeta = OvercookedControlsPatcher.AddMethod.Read(dmethod);
+                            if (addMethodMeta != null)
+                            {
+                                var targetType = targetMethod.Module.GetType(addMethodMeta.targetType);
+                                newMethod = CopyMethod(targetType, dmethod);
+                            }
+                        }
                         col.Add(Instruction.Create(i.OpCode, newMethod));
                     }
 
@@ -230,7 +264,17 @@ namespace OvercookedControlsPatcher
                     else if (operand is FieldReference)
                     {
                         FieldReference fref = operand as FieldReference;
-                        FieldReference newf = targetModule.ImportReference(fref);
+                        FieldReference newf;
+                        if (fref.DeclaringType == sourceMethod.DeclaringType)
+                        {
+                            var addFieldMeta = OvercookedControlsPatcher.AddField.Read(fref.Resolve());
+                            var targetType = targetMethod.Module.GetType(addFieldMeta.targetType);
+                            newf = targetType.Fields.First(f => f.Name == fref.Name);
+                        }
+                        else
+                        {
+                            newf = targetModule.ImportReference(fref);
+                        }
                         col.Add(Instruction.Create(i.OpCode, newf));
                     }
                     else if (operand is TypeReference)
@@ -278,7 +322,10 @@ namespace OvercookedControlsPatcher
                 foreach (ExceptionHandler eh in oldBody.ExceptionHandlers)
                 {
                     ExceptionHandler neh = new ExceptionHandler(eh.HandlerType);
-                    neh.CatchType = targetModule.ImportReference(eh.CatchType);
+                    if (eh.CatchType != null)
+                    {
+                        neh.CatchType = targetModule.ImportReference(eh.CatchType);
+                    }
 
                     // we need to setup neh.Start and End; these are instructions; we need to locate it in the source by index
                     if (eh.TryStart != null)
@@ -295,6 +342,12 @@ namespace OvercookedControlsPatcher
                     nBody.ExceptionHandlers.Add(neh);
                 }
             }
+        }
+
+        public static void AddField(TypeDefinition targetType, FieldDefinition patchField)
+        {
+            ModuleDefinition targetModule = targetType.Module;
+            targetType.Fields.Add(new FieldDefinition(patchField.Name, patchField.Attributes, targetModule.ImportReference(patchField.FieldType)));
         }
     }
 }
